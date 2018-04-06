@@ -10,9 +10,9 @@ def sorted_list(l):
     for member in s:
         dict[member] = l.count(member)
     
-    print("hostname : access")
+    print('{:>16}'.format("hostname")+":"+'{:>5}'.format("access"))
     for i,j in sorted(dict.items(),key=lambda x: -x[1]):
-        print(str(i)+":"+str(j))
+        print('{:>16}'.format(str(i))+":"+'{:>5}'.format(str(j)))
     return 0
 def date_to_epoch(d):
     return int(calendar.timegm(d.utctimetuple()))
@@ -46,10 +46,12 @@ if __name__=='__main__':
                        )
     stdate = parser.parse_args().start_date+"-00:00:00"
     endate = parser.parse_args().end_date+"-23:59:59"
-
-    date_from = date_to_epoch(datetime.datetime.strptime(stdate, "%Y-%m-%d-%H:%M:%S"))
-    date_to = date_to_epoch(datetime.datetime.strptime(endate, "%Y-%m-%d-%H:%M:%S"))
-
+    try:
+        date_from = date_to_epoch(datetime.datetime.strptime(stdate, "%Y-%m-%d-%H:%M:%S"))
+        date_to = date_to_epoch(datetime.datetime.strptime(endate, "%Y-%m-%d-%H:%M:%S"))
+    except ValueError:
+        print("Error : 日付が不正です。")
+        exit(0)
     line_num = 0
     host_list = []
     date_list = []
@@ -64,6 +66,7 @@ if __name__=='__main__':
             f = open(filename)
         except IOError:
             print ('"%s" cannnot be opened.' % filename)
+            continue
 
         else:
             for line in f.readlines():
@@ -92,12 +95,6 @@ if __name__=='__main__':
     
     sorted_list(host_list)
 
-    print('{:>20}'.format("Hour")),
-    for i in acc.keys():
-        print("|"+'{:>5}'.format(str(i)+"-"+str(i+1))),
-
-    print("|")
-    print('{:>20}'.format("Number of acccesses")),
-    for i in acc.keys():
-        print("|"+'{:>5}'.format(str(acc[i]))),
-    print("|")
+    print('{:>5}'.format("Hour")+":"+'{:>5}'.format("access")),
+    for i,j in acc.items():
+        print('{:>5}'.format(str(i)+"-"+str(i+1))+":"+'{:>5}'.format(str(i)))
