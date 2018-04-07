@@ -1,5 +1,5 @@
 # coding: utf-8
-import sys,re
+import sys,re,os
 import datetime
 import time
 import argparse
@@ -10,12 +10,16 @@ def sorted_list(l):
     for member in s:
         dict[member] = l.count(member)
     
-    print('{:>16}'.format("hostname")+":"+'{:>5}'.format("access"))
+    t = '{:>16}'.format("hostname")+":"+'{:>5}'.format("access")+"\n"
     for i,j in sorted(dict.items(),key=lambda x: -x[1]):
-        print('{:>16}'.format(str(i))+":"+'{:>5}'.format(str(j)))
-    return 0
+        t += '{:>16}'.format(str(i))+":"+'{:>5}'.format(str(j))+"\n"
+    return t
 def date_to_epoch(d):
-    return int(calendar.timegm(d.utctimetuple()))
+    try:
+        r = int(calendar.timegm(d.utctimetuple()))
+    except ValueError:
+        print("Error : 不正な日付です。")
+    return r
 
 if __name__=='__main__':
     parser = argparse.ArgumentParser(description="Receive log files, a start date, and an end date")
@@ -24,8 +28,7 @@ if __name__=='__main__':
                         nargs="*",
                         default=["/var/log/httpd/access_log"],
                         type=str,
-                        #required=True,
-                        help=u"ログファイルのパスを指定してください。 | 初期値: %(default)",
+                        help=u"ログファイルのパスを指定してください。 | default: %(default)",
                         dest="input_logs"
                         )
     parser.add_argument("-f",
@@ -33,25 +36,50 @@ if __name__=='__main__':
                         nargs="?",
                         default="1970-1-1",
                         type=str,
-                        help=u"対象期間の開始日をY-m-dの形式で指定してください。 | 初期値: %(default)s",
+                        help=u"対象期間の開始日をY-m-dの形式で指定してください。 | default: %(default)s",
                         dest="start_date"
+                       )
+    parser.add_argument("-F",
+                        "--FROM",
+                        nargs="?",
+                        default="00:00:00",
+                        type=str,
+                        help=u"対象期間の開始時間をH:M:Sの形式で指定してください。 | default: %(default)s",
+                        dest="start_time"
                        )
     parser.add_argument("-t",
                         "--to",
                         nargs="?",
                         default="9999-12-31",
                         type=str,
-                        help=u"対象期間の終了日をY-m-dの形式で指定してください。 | 初期値: %(default)s",
+                        help=u"対象期間の終了日をY-m-dの形式で指定してください。 | default: %(default)s",
                         dest="end_date"
                        )
-    stdate = parser.parse_args().start_date+"-00:00:00"
-    endate = parser.parse_args().end_date+"-23:59:59"
+    parser.add_argument("-T",
+                        "--TO",
+                        nargs="?",
+                        default="23:59:59",
+                        type=str,
+                        help=u"対象期間の終了時間をH:M:Sの形式で指定してください。 | default: %(default)s",
+                        dest="end_time"
+                       )
+    parser.add_argument("-o",
+                        "--output",
+                        nargs="?",
+                        default=None,
+                        type=str,
+                        required = None,
+                        help=u"結果の出力先を指定してください。 | default:標準出力",
+                        dest="out"
+                       )
+    stdate = parser.parse_args().start_date+"-"+parser.parse_args().start_time
+    endate = parser.parse_args().end_date+"-"+parser.parse_args().end_time
     try:
         date_from = date_to_epoch(datetime.datetime.strptime(stdate, "%Y-%m-%d-%H:%M:%S"))
         date_to = date_to_epoch(datetime.datetime.strptime(endate, "%Y-%m-%d-%H:%M:%S"))
     except ValueError:
         print("Error : 日付が不正です。")
-        exit(0)
+        exit(1)
     line_num = 0
     host_list = []
     date_list = []
@@ -92,9 +120,18 @@ if __name__=='__main__':
                 UA = stat_list[5].strip()
         
             f.close()
-    
-    sorted_list(host_list)
-
+    ##結果表示##
+    if(parser.parse_args().out!=None):
+        try:
+            o = open(parser.parse_args().out, 'w')
+        except IOError:
+            print ('"%s" cannnot be opened.' % parser.parse_args().out)
+            exit(1)
+            
+        sys.stdout = o
     print('{:>5}'.format("Hour")+":"+'{:>5}'.format("access")),
     for i,j in acc.items():
-        print('{:>5}'.format(str(i)+"-"+str(i+1))+":"+'{:>5}'.format(str(i)))
+        print('{:>5}'.format(str(i)+"-"+str(i+1))+":"+'{:>5}'.format(str(j)))
+    print(sorted_list(host_list))
+    if(parser.parse_args().out!=None):
+        o.close()
