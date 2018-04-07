@@ -1,7 +1,7 @@
-# access_analysis
-## description
+# Apache_accesslog_analysis
+## Description
 apacheのログファイルを解析する。
-時間帯別のアクセス数とリモートホスト別のアクセス数を集計・表示する
+時間帯別のアクセス数とリモートホスト別のアクセス数を集計・表示する。
 
 ## Dependency
 Python 3.6.4 :: Anaconda, Inc.
@@ -16,6 +16,6 @@ Python 3.6.4 :: Anaconda, Inc.
 -o, --out 出力先の指定　default:stdout
 ### Example
 python apache_access.py -l testlog -f 2017-4-1 -t 2017-5-1 -o result.txt
-testlogから2017年4月1日00:00:00から2017年5月1日23:59:59までの時間帯別のアクセス数とリモートホスト別のアクセス数を表示
+testlogというapacheのログファイルから2017年4月1日00:00:00から2017年5月1日23:59:59までの時間帯別のアクセス数とリモートホスト別のアクセス数をカレントディレクトリのresult.txtとして書き出す。
 ## Author
 松島　佑樹　Yuki Matsushima (m172240@hiroshima-u.ac.jp)
