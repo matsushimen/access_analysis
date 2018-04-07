@@ -10,7 +10,7 @@ def sorted_list(l):
     for member in s:
         dict[member] = l.count(member)
     
-    t = '{:>16}'.format("hostname")+":"+'{:>5}'.format("access")+"\n"
+    t = '{:>16}'.format("Hostname")+":"+'{:>5}'.format("Access")+"\n"
     for i,j in sorted(dict.items(),key=lambda x: -x[1]):
         t += '{:>16}'.format(str(i))+":"+'{:>5}'.format(str(j))+"\n"
     return t
@@ -129,7 +129,7 @@ if __name__=='__main__':
             exit(1)
             
         sys.stdout = o
-    print('{:>5}'.format("Hour")+":"+'{:>5}'.format("access")),
+    print('{:>5}'.format("Hour")+":"+'{:>5}'.format("Access")),
     for i,j in acc.items():
         print('{:>5}'.format(str(i)+"-"+str(i+1))+":"+'{:>5}'.format(str(j)))
     print(sorted_list(host_list))
