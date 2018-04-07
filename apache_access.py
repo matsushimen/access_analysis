@@ -4,16 +4,7 @@ import datetime
 import time
 import argparse
 import calendar
-def sorted_list(l):
-    s = set(l)
-    dict ={}
-    for member in s:
-        dict[member] = l.count(member)
-    
-    t = '{:>16}'.format("Hostname")+":"+'{:>5}'.format("Access")+"\n"
-    for i,j in sorted(dict.items(),key=lambda x: -x[1]):
-        t += '{:>16}'.format(str(i))+":"+'{:>5}'.format(str(j))+"\n"
-    return t
+
 def date_to_epoch(d):
     try:
         r = int(calendar.timegm(d.utctimetuple()))
@@ -80,9 +71,8 @@ if __name__=='__main__':
     except ValueError:
         print("Error : 日付が不正です。")
         exit(1)
-    line_num = 0
-    host_list = []
-    date_list = []
+    
+    host_dict = {}
     acc = {}
     for hour in range(24):
         acc[hour] = 0
@@ -108,7 +98,10 @@ if __name__=='__main__':
                 
                 acc[tdatetime.hour] += 1
                 hostname = stat_list[0].split()[0]
-                host_list.append(hostname)
+                if(hostname in host_dict.keys()):
+                    host_dict[hostname] += 1
+                else:
+                    host_dict[hostname] = 1
                 
                 client_id = stat_list[0].split()[1]
                 usr = stat_list[0].split()[2]
@@ -129,9 +122,14 @@ if __name__=='__main__':
             exit(1)
             
         sys.stdout = o
+    
+
     print('{:>5}'.format("Hour")+":"+'{:>5}'.format("Access")),
     for i,j in acc.items():
         print('{:>5}'.format(str(i)+"-"+str(i+1))+":"+'{:>5}'.format(str(j)))
-    print(sorted_list(host_list))
+    
+    print('{:>16}'.format("Hostname")+":"+'{:>5}'.format("Access"))
+    for i,j in sorted(host_dict.items(),key=lambda x: -x[1]):
+        print('{:>16}'.format(str(i))+":"+'{:>5}'.format(str(j)))
     if(parser.parse_args().out!=None):
         o.close()
